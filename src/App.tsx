@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./styles.css";
 import {
   closestCorners,
@@ -11,35 +13,39 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import Column, { type ColumnType } from "./Column";
-import { useState } from "react";
+import type { CardType } from "./Card";
 
 export default function App() {
-  // 仮データを定義
-  const data: ColumnType[] = [
-    {
-      id: "todo",
-      title: "未着手",
-      cards: [
-        { id: "1", title: "タスクA", start: "2025-07-28", due: "2025-08-05" },
-        { id: "2", title: "タスクB", start: "2025-07-29", due: "2025-08-03" },
-      ],
-    },
-    {
-      id: "doing",
-      title: "進行中",
-      cards: [
-        { id: "3", title: "タスクC", start: "2025-07-25", due: "2025-08-01" },
-      ],
-    },
-    {
-      id: "done",
-      title: "完了",
-      cards: [
-        { id: "4", title: "タスクD", start: "2025-07-20", due: "2025-07-27" },
-      ],
-    },
-  ];
-  const [columns, setColumns] = useState<ColumnType[]>(data);
+  const [columns, setColumns] = useState<ColumnType[]>([]);
+
+  // 初回マウント時にAPIから取得
+  useEffect(() => {
+    axios
+      .get<CardType[]>("/api/tasks")
+      .then((res) => {
+        const tasks = res.data;
+
+        // status によって分けて、id を文字列に変換
+        const toCard = (list: CardType[]) =>
+          list.map((t) => ({
+            ...t,
+            id: String(t.id), // ← ここで文字列に変換
+          }));
+
+        const todo = toCard(tasks.filter((t) => t.status === "TODO"));
+        const doing = toCard(tasks.filter((t) => t.status === "IN_PROGRESS"));
+        const done = toCard(tasks.filter((t) => t.status === "DONE"));
+
+        setColumns([
+          { id: "todo", title: "未着手", cards: todo },
+          { id: "doing", title: "進行中", cards: doing },
+          { id: "done", title: "完了", cards: done },
+        ]);
+      })
+      .catch((err) => {
+        console.error("タスクの取得に失敗しました", err);
+      });
+  }, []);
 
   const findColumn = (unique: string | null) => {
     if (!unique) {

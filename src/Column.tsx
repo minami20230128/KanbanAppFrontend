@@ -63,8 +63,9 @@ const Column: FC<ColumnType> = ({ id, title, cards }) => {
             key={card.id}
             id={card.id}
             title={card.title}
-            start={card.start}
-            due={card.due}
+            startDate={card.startDate}
+            dueDate={card.dueDate}
+            status={card.status}
           />
         ))}
       </div>

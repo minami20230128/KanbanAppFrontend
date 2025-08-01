@@ -1,17 +1,18 @@
 import type { FC } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
+
 export type CardType = {
   id: string;
   title: string;
-  start: string;
-  due: string;
+  startDate: string;
+  dueDate: string;
+  status: "TODO" | "IN_PROGRESS" | "DONE";
 };
 
-const Card: FC<CardType> = ({ id, title, start, due }) => {
-  // useSortableに指定するidは一意になるよう設定する必要があります。s
+const Card: FC<CardType> = ({ id, title, startDate: start, dueDate: due }) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
-    id: id
+    id: id,
   });
 
   const style = {
@@ -20,7 +21,7 @@ const Card: FC<CardType> = ({ id, title, start, due }) => {
     color: "#333",
     background: "white",
     padding: "10px",
-    transform: CSS.Transform.toString(transform)
+    transform: CSS.Transform.toString(transform),
   };
 
   return (
