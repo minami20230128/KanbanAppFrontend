@@ -10,7 +10,13 @@ export type CardType = {
   status: "TODO" | "IN_PROGRESS" | "DONE";
 };
 
-const Card: FC<CardType> = ({ id, title, startDate: start, dueDate: due }) => {
+const Card: FC<CardType> = ({
+  id,
+  title,
+  startDate: start,
+  dueDate: due,
+  status: status,
+}) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
     id: id,
   });
@@ -37,6 +43,8 @@ const Card: FC<CardType> = ({ id, title, startDate: start, dueDate: due }) => {
         開始: {start}
         <br />
         期限: {due}
+        <br />
+        状態: {status}
       </div>
     </div>
   );
