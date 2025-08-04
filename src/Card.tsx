@@ -1,6 +1,9 @@
 import type { FC } from "react";
 import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@mui/material";
+import type { CSSProperties } from "react";
 
 export type CardType = {
   id: string;
@@ -15,37 +18,60 @@ const Card: FC<CardType> = ({
   title,
   startDate: start,
   dueDate: due,
-  status: status,
+  status: _status,
 }) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
     id: id,
   });
 
-  const style = {
+  const navigate = useNavigate();
+
+  const handleClick = (id: string) => {
+    console.log("click");
+    navigate(`/tasks/${id}`);
+  };
+
+  const style: CSSProperties = {
+    position: "relative",
     margin: "10px",
     opacity: 1,
     color: "#333",
     background: "white",
     padding: "10px",
     transform: CSS.Transform.toString(transform),
+    cursor: "pointer",
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      style={style}
-      className="card"
-    >
-      <div className="card-title">{title}</div>
-      <div className="card-dates">
-        開始: {start}
-        <br />
-        期限: {due}
-        <br />
-        状態: {status}
+    <div ref={setNodeRef} style={style} className="card" {...attributes}>
+      {/* ドラッグハンドル（左上に配置） */}
+      <div
+        {...listeners}
+        style={{
+          position: "absolute",
+          top: 4,
+          left: 4,
+          cursor: "grab",
+          padding: "2px 6px",
+          fontSize: 16,
+          backgroundColor: "#e2e8f0",
+          borderRadius: 4,
+          zIndex: 10,
+          userSelect: "none",
+        }}
+      >
+        ≡
       </div>
+      <Button onClick={() => handleClick(id)}>
+        <div style={{ all: "unset", cursor: "pointer" }}>
+          <div className="card-title">{title}</div>
+          <div className="card-dates">
+            開始: {start}
+            <br />
+            期限: {due}
+          </div>
+        </div>
+      </Button>
     </div>
   );
 };
