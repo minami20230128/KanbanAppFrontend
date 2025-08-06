@@ -40,6 +40,10 @@ const Card: FC<CardType> = ({
     padding: "10px",
     transform: CSS.Transform.toString(transform),
     cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
   };
 
   return (
@@ -63,7 +67,7 @@ const Card: FC<CardType> = ({
         ≡
       </div>
       <Button onClick={() => handleClick(id)}>
-        <div style={{ all: "unset", cursor: "pointer" }}>
+        <div style={{ textAlign: "center" }}>
           <div className="card-title">{title}</div>
           <div className="card-dates">
             開始: {start}
