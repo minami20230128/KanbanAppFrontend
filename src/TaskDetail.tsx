@@ -8,16 +8,16 @@ const TaskDetail = () => {
   const [title, setTitle] = useState("");
   const [startDate, setStartDate] = useState("2025-07-31");
   const [dueDate, setDueDate] = useState("2025-08-01");
-  const [completionCondition, setCompletionCondition] = useState("");
-  const [notes, setNotes] = useState("");
+  const [condition, setCondition] = useState("");
+  const [memo, setMemo] = useState("");
 
   const handleSave = () => {
     const task = {
       title,
       startDate,
       dueDate,
-      completionCondition,
-      notes,
+      condition,
+      memo,
     };
     console.log("保存されたタスク:", task);
   };
@@ -27,7 +27,15 @@ const TaskDetail = () => {
 
     axios
       .get(`/api/tasks/${taskId}`)
-      .then((res) => setTask(res.data))
+      .then((res) => {
+        const data = res.data;
+        setTask(data);
+        setTitle(data.title || "");
+        setStartDate(data.startDate || "");
+        setDueDate(data.dueDate || "");
+        setCondition(data.condition || "");
+        setMemo(data.memo || "");
+      })
       .catch((err) => console.error("詳細取得に失敗", err));
   }, [taskId]);
 
@@ -75,8 +83,8 @@ const TaskDetail = () => {
         <input
           type="text"
           id="completionCondition"
-          value={completionCondition}
-          onChange={(e) => setCompletionCondition(e.target.value)}
+          value={condition}
+          onChange={(e) => setCondition(e.target.value)}
           placeholder="例：レビュー済みであること"
           style={styles.input}
         />
@@ -86,8 +94,8 @@ const TaskDetail = () => {
         <label htmlFor="notes">メモ</label>
         <textarea
           id="notes"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
+          value={memo}
+          onChange={(e) => setMemo(e.target.value)}
           placeholder="自由記入欄（タスクの詳細や補足など）"
           style={styles.textarea}
         />
