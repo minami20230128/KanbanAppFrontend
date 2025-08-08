@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 const TaskDetail = () => {
@@ -11,15 +11,23 @@ const TaskDetail = () => {
   const [condition, setCondition] = useState("");
   const [memo, setMemo] = useState("");
 
-  const handleSave = () => {
-    const task = {
-      title,
-      startDate,
-      dueDate,
-      condition,
-      memo,
-    };
-    console.log("保存されたタスク:", task);
+  const navigate = useNavigate();
+
+  const handleSave = async () => {
+    try {
+      await axios.put(`/api/tasks/${taskId}`, {
+        title,
+        startDate,
+        dueDate,
+        condition,
+        memo,
+      });
+      alert("更新しました");
+      navigate("/"); // ← 保存後に一覧に戻るなら有効化
+    } catch (err) {
+      console.error("更新に失敗", err);
+      alert("更新に失敗しました");
+    }
   };
 
   useEffect(() => {
