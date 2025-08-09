@@ -30,6 +30,10 @@ const TaskDetail = () => {
     }
   };
 
+  const handleReturn = () => {
+    navigate("/");
+  };
+
   return (
     <div style={styles.container}>
       <h1 style={styles.heading}>新規タスク登録</h1>
@@ -90,10 +94,24 @@ const TaskDetail = () => {
         />
       </div>
 
-      <div style={styles.buttonGroup}>
-        <button onClick={handleSave} style={styles.button}>
-          保存
-        </button>
+      <div
+        style={{
+          ...styles.buttonGroup,
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+        }}
+      >
+        <div style={styles.buttonGroup}>
+          <button onClick={handleSave} style={styles.button}>
+            保存
+          </button>
+        </div>
+        <div style={styles.buttonGroup}>
+          <button onClick={handleReturn} style={styles.button}>
+            戻る
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 
 const TaskDetail = () => {
   const { taskId } = useParams();
@@ -23,11 +23,15 @@ const TaskDetail = () => {
         memo,
       });
       alert("更新しました");
-      navigate("/"); // ← 保存後に一覧に戻るなら有効化
+      navigate("/");
     } catch (err) {
       console.error("更新に失敗", err);
       alert("更新に失敗しました");
     }
+  };
+
+  const handleReturn = () => {
+    navigate("/");
   };
 
   useEffect(() => {
@@ -109,10 +113,24 @@ const TaskDetail = () => {
         />
       </div>
 
-      <div style={styles.buttonGroup}>
-        <button onClick={handleSave} style={styles.button}>
-          保存
-        </button>
+      <div
+        style={{
+          ...styles.buttonGroup,
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+        }}
+      >
+        <div style={styles.buttonGroup}>
+          <button onClick={handleSave} style={styles.button}>
+            保存
+          </button>
+        </div>
+        <div style={styles.buttonGroup}>
+          <button onClick={handleReturn} style={styles.button}>
+            戻る
+          </button>
+        </div>
       </div>
     </div>
   );
