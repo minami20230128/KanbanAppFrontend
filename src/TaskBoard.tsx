@@ -1,6 +1,3 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import "./styles.css";
 import {
   closestCorners,
   DndContext,
@@ -14,8 +11,11 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import Column, { type ColumnType } from "./Column";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import type { CardType } from "./Card";
+import Column, { type ColumnType } from "./Column";
+import "./styles.css";
 
 const TaskBoard = () => {
   const [columns, setColumns] = useState<ColumnType[]>([]);
@@ -39,9 +39,9 @@ const TaskBoard = () => {
         const done = toCard(tasks.filter((t) => t.status === "DONE"));
 
         setColumns([
-          { id: "todo", title: "未着手", cards: todo },
-          { id: "doing", title: "進行中", cards: doing },
-          { id: "done", title: "完了", cards: done },
+          { id: "todo", title: "未着手", cards: todo, status: "TODO" },
+          { id: "doing", title: "進行中", cards: doing, status: "IN_PROGRESS" },
+          { id: "done", title: "完了", cards: done, status: "DONE" },
         ]);
       })
       .catch((err) => {
@@ -62,7 +62,6 @@ const TaskBoard = () => {
   };
 
   const handleDragStart = (event: DragStartEvent) => {
-    console.log("drag");
     const activeId = String(event.active.id);
     const fromColumn = findColumn(activeId);
     setDraggingFromColumnId(fromColumn?.id ?? null);
@@ -173,6 +172,7 @@ const TaskBoard = () => {
             id={column.id}
             title={column.title}
             cards={column.cards}
+            status={column.status}
           />
         ))}
       </div>

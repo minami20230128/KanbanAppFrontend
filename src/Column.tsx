@@ -1,16 +1,24 @@
-import type { FC } from "react";
-import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
+import { SortableContext, rectSortingStrategy } from "@dnd-kit/sortable";
+import type { FC } from "react";
+import { useNavigate } from "react-router-dom";
 import Card, { type CardType } from "./Card";
 
 export type ColumnType = {
   id: string;
   title: string;
   cards: CardType[];
+  status: string;
 };
 
-const Column: FC<ColumnType> = ({ id, title, cards }) => {
+const Column: FC<ColumnType> = ({ id, title, cards, status }) => {
   const { setNodeRef } = useDroppable({ id: id });
+
+  const navigate = useNavigate();
+
+  const handleClick = (status: string) => {
+    navigate(`/tasks/new/${status}`);
+  };
 
   return (
     <SortableContext id={id} items={cards} strategy={rectSortingStrategy}>
@@ -43,7 +51,7 @@ const Column: FC<ColumnType> = ({ id, title, cards }) => {
             {title}
           </p>
           <button
-            onClick={() => alert(`「${title}」に新しいタスクを追加します`)}
+            onClick={() => handleClick(status)}
             style={{
               border: "none",
               background: "transparent",

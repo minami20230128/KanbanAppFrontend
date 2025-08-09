@@ -1,9 +1,8 @@
-import type { FC } from "react";
-import { CSS } from "@dnd-kit/utilities";
 import { useSortable } from "@dnd-kit/sortable";
-import { useNavigate } from "react-router-dom";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@mui/material";
-import type { CSSProperties } from "react";
+import type { CSSProperties, FC } from "react";
+import { useNavigate } from "react-router-dom";
 
 export type CardType = {
   id: string;
@@ -27,7 +26,6 @@ const Card: FC<CardType> = ({
   const navigate = useNavigate();
 
   const handleClick = (id: string) => {
-    console.log("click");
     navigate(`/tasks/${id}`);
   };
 
