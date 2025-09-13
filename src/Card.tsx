@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@mui/material";
+import axios from "axios";
 import type { CSSProperties, FC } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -12,12 +13,17 @@ export type CardType = {
   status: "TODO" | "IN_PROGRESS" | "DONE";
 };
 
-const Card: FC<CardType> = ({
+type CardProps = CardType & {
+  onDeleteSuccess?: (id: string) => void;
+};
+
+const Card: FC<CardProps> = ({
   id,
   title,
   startDate: start,
   dueDate: due,
   status: _status,
+  onDeleteSuccess,
 }) => {
   const { attributes, listeners, setNodeRef, transform } = useSortable({
     id: id,
@@ -27,6 +33,21 @@ const Card: FC<CardType> = ({
 
   const handleClick = (id: string) => {
     navigate(`/tasks/${id}`);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (onDeleteSuccess) onDeleteSuccess(id);
+    if (!window.confirm("本当に削除しますか？")) {
+      return; // キャンセルしたら何もしない
+    }
+
+    try {
+      await axios.delete(`/api/tasks/${id}`);
+      alert("削除しました。");
+      onDeleteSuccess?.(id);
+    } catch (err) {
+      alert("削除に失敗しました");
+    }
   };
 
   const style: CSSProperties = {
@@ -46,6 +67,25 @@ const Card: FC<CardType> = ({
 
   return (
     <div ref={setNodeRef} style={style} className="card" {...attributes}>
+      {/* 削除ボタン（右上に配置） */}
+      <button
+        onClick={() => handleDelete(id)}
+        style={{
+          position: "absolute",
+          top: 4,
+          right: 4,
+          backgroundColor: "red",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          padding: "2px 6px",
+          cursor: "pointer",
+          fontSize: "12px",
+          zIndex: 10,
+        }}
+      >
+        削除
+      </button>
       {/* ドラッグハンドル（左上に配置） */}
       <div
         {...listeners}

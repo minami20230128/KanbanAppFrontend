@@ -9,11 +9,11 @@ export type ColumnType = {
   title: string;
   cards: CardType[];
   status: string;
+  onDeleteCard?: (cardId: string) => void;
 };
 
-const Column: FC<ColumnType> = ({ id, title, cards, status }) => {
-  const { setNodeRef } = useDroppable({ id: id });
-
+const Column: FC<ColumnType> = ({ id, title, cards, status, onDeleteCard }) => {
+  const { setNodeRef } = useDroppable({ id });
   const navigate = useNavigate();
 
   const handleClick = (status: string) => {
@@ -32,6 +32,7 @@ const Column: FC<ColumnType> = ({ id, title, cards, status }) => {
           borderRadius: "8px",
         }}
       >
+        {/* カラムヘッダー */}
         <div
           style={{
             display: "flex",
@@ -66,6 +67,7 @@ const Column: FC<ColumnType> = ({ id, title, cards, status }) => {
           </button>
         </div>
 
+        {/* カード一覧 */}
         {cards.map((card) => (
           <Card
             key={card.id}
@@ -74,6 +76,7 @@ const Column: FC<ColumnType> = ({ id, title, cards, status }) => {
             startDate={card.startDate}
             dueDate={card.dueDate}
             status={card.status}
+            onDeleteSuccess={onDeleteCard ?? (() => {})} // 削除は親に通知
           />
         ))}
       </div>
