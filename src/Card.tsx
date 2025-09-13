@@ -36,17 +36,18 @@ const Card: FC<CardProps> = ({
   };
 
   const handleDelete = async (id: string) => {
-    if (onDeleteSuccess) onDeleteSuccess(id);
     if (!window.confirm("本当に削除しますか？")) {
-      return; // キャンセルしたら何もしない
+      return; // ユーザーがキャンセルしたらここで処理を終了
     }
 
     try {
       await axios.delete(`/api/tasks/${id}`);
       alert("削除しました。");
+      // サーバー側の削除が成功した後に、親コンポーネントの状態更新関数を呼び出す
       onDeleteSuccess?.(id);
     } catch (err) {
       alert("削除に失敗しました");
+      console.error("削除エラー:", err);
     }
   };
 

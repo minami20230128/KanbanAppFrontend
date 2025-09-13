@@ -61,6 +61,26 @@ const TaskBoard = () => {
     return null;
   };
 
+  const handleDeleteCard = async (columnId: string, cardId: string) => {
+    try {
+      // サーバーへの削除リクエストはすでに Card コンポーネント内で行われているため、ここではステートの更新のみを行う
+      setColumns((prevColumns) =>
+        prevColumns.map((column) =>
+          column.id === columnId
+            ? {
+                ...column,
+                cards: column.cards.filter((card) => card.id !== cardId),
+              }
+            : column
+        )
+      );
+    } catch (err) {
+      // 今回の構成では発生しないが、エラーハンドリングは維持しておく
+      console.error("削除に失敗しました", err);
+      alert("削除に失敗しました");
+    }
+  };
+
   const handleDragStart = (event: DragStartEvent) => {
     const activeId = String(event.active.id);
     const fromColumn = findColumn(activeId);
@@ -173,6 +193,7 @@ const TaskBoard = () => {
             title={column.title}
             cards={column.cards}
             status={column.status}
+            onDeleteCard={(cardId) => handleDeleteCard(column.id, cardId)}
           />
         ))}
       </div>
