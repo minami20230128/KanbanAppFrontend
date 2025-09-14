@@ -20,13 +20,26 @@ const Column: FC<ColumnType> = ({ id, title, cards, status, onDeleteCard }) => {
     navigate(`/tasks/new/${status}`);
   };
 
+  const getBackgroundColor = (status: string) => {
+    switch (status) {
+      case "TODO":
+        return "#abf3abff";
+      case "IN_PROGRESS":
+        return "#ffff99";
+      case "DONE":
+        return "#ffc0cb";
+      default:
+        return "rgba(245,247,249,1.00)";
+    }
+  };
+
   return (
     <SortableContext id={id} items={cards} strategy={rectSortingStrategy}>
       <div
         ref={setNodeRef}
         style={{
           width: "200px",
-          background: "rgba(245,247,249,1.00)",
+          background: getBackgroundColor(status),
           marginRight: "10px",
           padding: "10px",
           borderRadius: "8px",
@@ -69,15 +82,7 @@ const Column: FC<ColumnType> = ({ id, title, cards, status, onDeleteCard }) => {
 
         {/* カード一覧 */}
         {cards.map((card) => (
-          <Card
-            key={card.id}
-            id={card.id}
-            title={card.title}
-            startDate={card.startDate}
-            dueDate={card.dueDate}
-            status={card.status}
-            onDeleteSuccess={onDeleteCard ?? (() => {})} // 削除は親に通知
-          />
+          <Card key={card.id} {...card} onDeleteSuccess={onDeleteCard} />
         ))}
       </div>
     </SortableContext>
