@@ -87,82 +87,70 @@ const TaskBoard = () => {
     setDraggingFromColumnId(fromColumn?.id ?? null);
   };
 
-  const handleDragOver = (_event: DragOverEvent) => {
-    // 状態変更は onDragEnd に集中させるため、ここでは何もしない
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    const fromColumn = findColumn(activeId);
+    const toColumn = findColumn(overId);
+
+    if (!fromColumn || !toColumn || fromColumn.id === toColumn.id) return;
+
+    setColumns((prev) => {
+      const fromIndex = fromColumn.cards.findIndex((c) => c.id === activeId);
+      const activeCard = fromColumn.cards[fromIndex];
+
+      return prev.map((column) => {
+        if (column.id === fromColumn.id) {
+          return {
+            ...column,
+            cards: column.cards.filter((c) => c.id !== activeId),
+          };
+        }
+        if (column.id === toColumn.id) {
+          return {
+            ...column,
+            cards: [...column.cards, { ...activeCard }],
+          };
+        }
+        return column;
+      });
+    });
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    if (!over) return;
+
     const activeId = String(active.id);
-    const overId = over ? String(over.id) : null;
+    const overId = String(over.id);
 
-    const overColumn = findColumn(overId);
     const fromColumn = findColumn(draggingFromColumnId);
+    const toColumn = findColumn(overId);
 
-    if (!fromColumn || !overColumn) return;
+    if (!fromColumn || !toColumn) return;
 
-    const activeIndex = fromColumn.cards.findIndex((i) => i.id === activeId);
-    const overIndex = overColumn.cards.findIndex((i) => i.id === overId);
-    const task = fromColumn.cards[activeIndex];
-
-    const isColumnChanged = fromColumn.id !== overColumn.id;
-
-    if (isColumnChanged) {
+    // ステータス変更が必要ならサーバー更新
+    if (fromColumn.id !== toColumn.id) {
       const statusMap: Record<string, "TODO" | "IN_PROGRESS" | "DONE"> = {
         todo: "TODO",
         doing: "IN_PROGRESS",
         done: "DONE",
       };
 
-      const newStatus = statusMap[overColumn.id];
-
+      const newStatus = statusMap[toColumn.id];
       try {
-        await axios.patch(`/api/tasks/${task.id}/status`, {
+        await axios.patch(`/api/tasks/${activeId}/status`, {
           status: newStatus,
         });
       } catch (err) {
         console.error("ステータス更新に失敗しました", err);
-        return;
       }
-
-      setColumns((prevState) => {
-        return prevState.map((column) => {
-          if (column.id === fromColumn.id) {
-            return {
-              ...column,
-              cards: column.cards.filter((i) => i.id !== activeId),
-            };
-          } else if (column.id === overColumn.id) {
-            const insertIndex =
-              overIndex >= 0 ? overIndex + 1 : column.cards.length;
-            return {
-              ...column,
-              cards: [
-                ...column.cards.slice(0, insertIndex),
-                { ...task, status: newStatus },
-                ...column.cards.slice(insertIndex),
-              ],
-            };
-          } else {
-            return column;
-          }
-        });
-      });
-    } else if (activeIndex !== overIndex) {
-      setColumns((prevState) =>
-        prevState.map((column) => {
-          if (column.id === fromColumn.id) {
-            const updatedCards = [...column.cards];
-            const [moved] = updatedCards.splice(activeIndex, 1);
-            updatedCards.splice(overIndex, 0, moved);
-            return { ...column, cards: updatedCards };
-          }
-          return column;
-        })
-      );
     }
 
-    // cleanup
     setDraggingFromColumnId(null);
   };
 
