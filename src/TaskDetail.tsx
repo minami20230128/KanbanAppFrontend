@@ -10,6 +10,7 @@ const TaskDetail = () => {
   const [dueDate, setDueDate] = useState("2025-08-01");
   const [condition, setCondition] = useState("");
   const [memo, setMemo] = useState("");
+  const [version, setVersion] = useState();
 
   const navigate = useNavigate();
 
@@ -21,10 +22,16 @@ const TaskDetail = () => {
         dueDate,
         condition,
         memo,
+        version,
       });
       alert("更新しました");
       navigate("/");
-    } catch (err) {
+    } catch (err: any) {
+      if (err.response?.status === 409) {
+        alert(
+          "他のユーザーによって更新されています。最新の情報を取得してください。"
+        );
+      }
       console.error("更新に失敗", err);
       alert("更新に失敗しました");
     }
@@ -47,6 +54,7 @@ const TaskDetail = () => {
         setDueDate(data.dueDate || "");
         setCondition(data.condition || "");
         setMemo(data.memo || "");
+        setVersion(data.version);
       })
       .catch((err) => console.error("詳細取得に失敗", err));
   }, [taskId]);
