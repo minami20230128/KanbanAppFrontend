@@ -28,10 +28,12 @@ const TaskBoard = () => {
       .get<CardType[]>("/api/tasks")
       .then((res) => {
         const tasks = res.data;
+        console.log(res.data);
         const toCard = (list: CardType[]) =>
           list.map((t) => ({
             ...t,
             id: String(t.id),
+            version: t.version,
           }));
 
         const todo = toCard(tasks.filter((t) => t.status === "TODO"));
@@ -43,6 +45,8 @@ const TaskBoard = () => {
           { id: "doing", title: "進行中", cards: doing, status: "IN_PROGRESS" },
           { id: "done", title: "完了", cards: done, status: "DONE" },
         ]);
+
+        console.log(tasks);
       })
       .catch((err) => {
         console.error("タスクの取得に失敗しました", err);
@@ -133,6 +137,13 @@ const TaskBoard = () => {
 
     if (!fromColumn || !toColumn) return;
 
+    const activeCard = fromColumn.cards.find((c) => c.id === activeId);
+    if (!activeCard) {
+      console.error("activeCard not found for id:", activeId);
+      return;
+    }
+    console.log("activeCard:", activeCard);
+
     // ステータス変更が必要ならサーバー更新
     if (fromColumn.id !== toColumn.id) {
       const statusMap: Record<string, "TODO" | "IN_PROGRESS" | "DONE"> = {
@@ -145,10 +156,33 @@ const TaskBoard = () => {
       try {
         await axios.patch(`/api/tasks/${activeId}/status`, {
           status: newStatus,
+          version: activeCard.version, // ここでversionを渡す
         });
       } catch (err) {
         console.error("ステータス更新に失敗しました", err);
+        alert("ステータス更新に失敗しました");
+        alert(err);
+        return;
       }
+
+      // フロント側ステートも更新
+      setColumns((prev) =>
+        prev.map((column) => {
+          if (column.id === fromColumn.id) {
+            return {
+              ...column,
+              cards: column.cards.filter((c) => c.id !== activeId),
+            };
+          }
+          if (column.id === toColumn.id) {
+            return {
+              ...column,
+              cards: [...column.cards, { ...activeCard, status: newStatus }],
+            };
+          }
+          return column;
+        })
+      );
     }
 
     setDraggingFromColumnId(null);

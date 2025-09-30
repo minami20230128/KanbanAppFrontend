@@ -11,39 +11,41 @@ export type CardType = {
   startDate: string;
   dueDate: string;
   status: "TODO" | "IN_PROGRESS" | "DONE";
+  version: number;
 };
 
 type CardProps = CardType & {
   onDeleteSuccess?: (id: string) => void;
 };
 
-const Card: FC<CardProps> = ({
-  id,
-  title,
-  startDate: start,
-  dueDate: due,
-  status: _status,
-  onDeleteSuccess,
-}) => {
-  const { attributes, listeners, setNodeRef, transform } = useSortable({
-    id: id,
-  });
+const Card: FC<CardProps> = (props) => {
+  console.log("Card props:", props); // ← ここで props を全部確認
 
+  const {
+    id,
+    title,
+    startDate: start,
+    dueDate: due,
+    status: _status,
+    version,
+    onDeleteSuccess,
+  } = props;
+
+  const { attributes, listeners, setNodeRef, transform } = useSortable({ id });
   const navigate = useNavigate();
 
   const handleClick = (id: string) => {
     navigate(`/tasks/${id}`);
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("本当に削除しますか？")) {
-      return; // ユーザーがキャンセルしたらここで処理を終了
-    }
+  const handleDelete = async (id: string, version: number) => {
+    if (!window.confirm("本当に削除しますか？")) return;
 
     try {
-      await axios.delete(`/api/tasks/${id}`);
+      await axios.delete(`/api/tasks/${id}`, {
+        data: { version },
+      });
       alert("削除しました。");
-      // サーバー側の削除が成功した後に、親コンポーネントの状態更新関数を呼び出す
       onDeleteSuccess?.(id);
     } catch (err) {
       alert("削除に失敗しました");
@@ -68,9 +70,8 @@ const Card: FC<CardProps> = ({
 
   return (
     <div ref={setNodeRef} style={style} className="card" {...attributes}>
-      {/* 削除ボタン（右上に配置） */}
       <button
-        onClick={() => handleDelete(id)}
+        onClick={() => handleDelete(id, version)}
         style={{
           position: "absolute",
           top: 4,
@@ -87,7 +88,6 @@ const Card: FC<CardProps> = ({
       >
         削除
       </button>
-      {/* ドラッグハンドル（左上に配置） */}
       <div
         {...listeners}
         style={{
